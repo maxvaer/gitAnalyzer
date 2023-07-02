@@ -1,0 +1,16 @@
+name: "NPM-Audit"
+description: "Executes the npm audit command to identify vulnerabilities inside dependencies."
+requirements:
+  tools: ["npm", "grep"]
+tags: ["javascript", "audit", "npm", "npm-audit"]
+type: "Flat"
+match:
+  filename: ["package-lock.json"]
+  exclude: ["node_modules"]
+script:
+  language: "cli"
+  code: "npm audit | grep vulnerabilities"
+meta:
+  reference: "https://docs.npmjs.com/cli/v9/commands/npm-audit"
+  cwe: 1395
+  mitigation: "Most vulnerabilities can be fixed by running: npm audit fix"

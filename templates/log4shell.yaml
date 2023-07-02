@@ -1,0 +1,74 @@
+name: "Log4Shell"
+description: "Checks if the dependencies are outdated and vulnerable to log4Shell"
+requirements:
+  tools: []
+  pip: ["packaging", "beautifulsoup4"]
+tags: ["java", "log4j"]
+type: "Flat"
+match:
+  filename: ["pom.xml", "ivy.xml", "build.gradle", "build.sbt"]
+  exclude: ["node_modules"]
+script:
+  language: "python"
+  code: |+
+    from bs4 import BeautifulSoup
+    from packaging import version
+    import re
+    import os
+
+    path = '{{File}}'
+    path = path.replace('./', '')
+    log4j_version = ""
+
+    try:
+        if path.endswith(".xml"):
+            content = []
+            if os.path.basename(path) == 'pom.xml':
+                # Read the XML file
+                with open("pom.xml", "r") as file:
+                    content = file.readlines()
+                content = "".join(content)
+                soup = BeautifulSoup(content, "html.parser")
+                # Find the log4j-core dependency in pom.xml
+                parent = soup.find(lambda tag: tag.string == 'log4j-core').parent
+                ver = parent.find("version")
+                log4j_version = ver.text
+            elif os.path.basename(path) == "ivy.xml":
+                # Read the XML file
+                with open("ivy.xml", "r") as file:
+                    content = file.readlines()
+                content = "".join(content)
+                soup = BeautifulSoup(content, "html.parser")
+                # Find the log4j-core dependency in ivy.xml
+                parent = soup.find(lambda tag: tag.string == 'log4j-core').parent
+                ver = parent.find("rev")
+                log4j_version = ver.text
+        if path == "build.gradle" or path == "build.sbt":
+            # Regex for build.gradle
+            regex = r"log4j-core:([^']+)'"
+            if os.path.basename(path) == "build.sbt":
+                # Regex for build.sbt
+                regex = r'"log4j-core"\s*\%\s*"([^"]+)"'
+            # Read the file into a string
+            with open(path, 'r') as f:
+                content = f.read()
+            # Find the log4j-core dependency and extract the version
+            match = re.search(regex, content)
+            if match:
+                log4j_version = match.group(1)
+
+        # Get check if log4j version is vulnerable
+        vulnerable = version.parse("2.0-beta9") <= version.parse(log4j_version) <= version.parse("2.16.0")
+        if vulnerable and log4j_version != "":
+            print(log4j_version)
+    except:
+        pass
+Meta:
+  references: ["https://logging.apache.org/log4j/2.x/maven-artifacts.html",
+               "https://www.fortinet.com/blog/threat-research/critical-apache-log4j-log4shell-vulnerability-what-you-need-to-know"]
+  Impact: "Critical"
+  CVSS: 10.0
+  CVE: CVE-2021-44228
+  CWE: CWE-917
+  Mitigation: "Update the Log4j dependency to the newest version."
+

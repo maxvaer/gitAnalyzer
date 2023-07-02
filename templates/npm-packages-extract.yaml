@@ -1,0 +1,31 @@
+name: "NPM-Packages-Extract"
+description: "Grabs the npm packages found inside a package.json"
+requirements:
+tags: ["javascript", "npm", "extract"]
+match:
+  filename: ["package.json"]
+  exclude: ["node_modules"]
+script:
+  language: "python"
+  code: |+
+    try:
+        import json
+        with open('package.json') as f:
+            data = json.load(f)
+            allDependencies = {}
+            # Accessing the dependencies
+            if 'dependencies' in data:
+                dependencies = data['dependencies']
+                allDependencies.update(dependencies)
+            if 'devDependencies' in data:
+                devDependencies = data['devDependencies']
+                allDependencies.update(devDependencies)
+
+        # Iterating over the dependencies
+        result = ""
+        for package_name, version_number in allDependencies.items():
+            result = result + str(package_name) + str(version_number) + " "
+        if result != "":
+            print(result)
+    except:
+        pass

@@ -1,0 +1,8 @@
+name: "Count-Files"
+description: "Recursively counts all files in the current directory"
+requirements:
+  tools: ["find", "wc"]
+tags: ["info", "count"]
+type: "Flat"
+script:
+  code: "find . -type f | wc -l"

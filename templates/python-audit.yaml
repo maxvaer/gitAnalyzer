@@ -1,0 +1,13 @@
+name: "Python-Audit"
+description: "Executes the safety check command to identify vulnerabilities inside dependencies."
+requirements:
+  pip: ["safety"]
+tags: ["python"]
+type: "Flat"
+match:
+  filename: ["requirements.txt"]
+script:
+  code: "safety check -r ./requirements.txt --output bare"
+meta:
+  cwe: 1395
+  mitigation: "Most vulnerabilities can be fixed by updating the corresponding package."

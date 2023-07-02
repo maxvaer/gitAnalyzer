@@ -1,0 +1,34 @@
+name: "New-Template"
+description: "This is a description"
+tags: [] #List of tags to filter/select this template
+type: "Flat" #Flat only scans last commit, Full scans all branches and commits
+requirements:
+  tools: [] #Needed cli tools e. g. curl, docker
+  pip: [] #Needed pip packages
+  npm: [] #Needed npm packages
+regex:
+  - expression: (A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}
+    group: 0 #The captured group of the wanted value
+    description: "Example Regex"
+    references: [ "https", "https:" ] #Links to blog posts or regex101 etc.
+    false_positives: [ "wrongToken", "xxxxx" ] #Known false positive values, match via contain.
+    validation:
+      tests: #Specifies values for a unit test
+        - input: "aws_access_token: AKIAIOSFODNN7EXAMPLE"
+          want: [ "AKIAIOSFODNN7EXAMPLE" ]
+output:
+  uniq: true #The output will be filtered, so only unique values will be shown.
+match:
+  filename: ["package.json"] #Match only the files package.json
+  exclude: ["node_modules"] #Exclude all files inside the given folder/path.
+script: #Will be executed for the matched files
+  language: "bash" #Language of the script. Bash for multiline bash scripts, cli for cli commands and python for python scripts
+  code: |+
+    #!/bin/bash
+pre_script: #Will be executed once prior of the execution of all scripts
+  language: "cli"
+  code: "ls"
+post_script: #Will be executed once after execution of all scripts
+  language: "cli"
+  code: "whoami"
+
